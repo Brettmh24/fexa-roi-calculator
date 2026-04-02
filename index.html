@@ -872,7 +872,7 @@
       </svg>
       ${d.clientDomain ? `
       <div style="border-left:1px solid #D8E4E4;padding-left:14px;display:flex;align-items:center">
-        <img src="https://logo.clearbit.com/\${encodeURIComponent('${d.clientDomain}')}" alt="${d.clientName}" style="height:32px;max-width:140px;object-fit:contain" onerror="this.parentElement.style.display='none'" />
+        <img src="https://logo.clearbit.com/${d.clientDomain}" alt="${d.clientName}" style="height:32px;max-width:140px;object-fit:contain" onerror="this.parentElement.style.display='none'" />
       </div>
       ` : ''}
     </div>
@@ -1191,30 +1191,20 @@ new Chart(document.getElementById('capacityChart'),{
             };
 
             showToast('Saving to pipeline...');
-            // Use a form POST via hidden iframe to avoid CORS issues
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = url;
-            form.target = 'sheetFrame';
-            form.style.display = 'none';
-            // Send as a single JSON field that Apps Script can parse
-            const input = document.createElement('input');
-            input.name = 'payload';
-            input.value = JSON.stringify(payload);
-            form.appendChild(input);
-            // Hidden iframe to receive response
-            let iframe = document.getElementById('sheetFrame');
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.name = 'sheetFrame';
-                iframe.id = 'sheetFrame';
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
+            // Build URL params for GET request (most reliable for Apps Script)
+            const params = new URLSearchParams(payload).toString();
+            const fullUrl = url + '?action=save&' + params;
+            // Use hidden iframe to avoid CORS
+            let sFrame = document.getElementById('sheetFrame');
+            if (!sFrame) {
+                sFrame = document.createElement('iframe');
+                sFrame.name = 'sheetFrame';
+                sFrame.id = 'sheetFrame';
+                sFrame.style.display = 'none';
+                document.body.appendChild(sFrame);
             }
-            document.body.appendChild(form);
-            form.submit();
-            form.remove();
-            setTimeout(() => showToast('Saved to pipeline sheet'), 1500);
+            sFrame.src = fullUrl;
+            setTimeout(() => showToast('Saved to pipeline sheet'), 2000);
         }
     </script>
     <div class="toast" id="toast"></div>
