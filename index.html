@@ -209,6 +209,12 @@
                         </div>
                     </div>
                     <div class="input-group full-width">
+                        <label>Client Website Domain <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--gray-500)">(for logo on report)</span></label>
+                        <div class="input-wrapper">
+                            <input type="text" id="clientDomain" placeholder="e.g. ae.com, xpo.com, totalwine.com" />
+                        </div>
+                    </div>
+                    <div class="input-group full-width">
                         <label>Total Spend</label>
                         <div class="input-wrapper">
                             <span class="prefix">$</span>
@@ -470,6 +476,7 @@
             const callCenter   = pv('callCenter');
             const totalAssets  = pv('totalAssets');
             const clientName   = document.getElementById('clientName').value.trim() || 'Client';
+            const clientDomain = document.getElementById('clientDomain').value.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
             const fmTeamSize   = pv('fmTeamSize') || 0;
             const locationGrowth = parseFloat(document.getElementById('locationGrowth').value) || 0;
             const ebitdaMargin = parseFloat(document.getElementById('ebitdaMargin').value) || 9;
@@ -594,7 +601,7 @@
             const grandTotal = costAvoidTotal + timeBackDollars + spendOptTotal;
 
             lastCalcData = {
-                clientName, totalSpend, totalInv, totalWOs, locations, totalAssets, avgInvoice, vendors,
+                clientName, clientDomain, totalSpend, totalInv, totalWOs, locations, totalAssets, avgInvoice, vendors,
                 proposals, callCenter, fmTeamSize, locationGrowth, ebitdaMargin,
                 costAvoidTotal, costAvoidItems,
                 totalTimeHours, timeBackDollars, timeBackItems,
@@ -855,16 +862,19 @@
 
   <!-- HEADER -->
   <header class="header">
-    <div style="display:flex;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;gap:14px">
       <svg width="120" height="36" viewBox="0 0 360 100" xmlns="http://www.w3.org/2000/svg">
-        <!-- 4-petal flower mark -->
         <ellipse cx="35" cy="28" rx="14" ry="22" fill="#7ECE3B" transform="rotate(45,35,28)"/>
         <ellipse cx="16" cy="50" rx="14" ry="22" fill="#27B2B5" transform="rotate(0,16,50)"/>
         <ellipse cx="35" cy="72" rx="14" ry="22" fill="#27B2B5" transform="rotate(-45,35,72)"/>
         <ellipse cx="50" cy="50" rx="14" ry="22" fill="#009C9E" transform="rotate(90,50,50)"/>
-        <!-- Wordmark -->
         <text x="78" y="74" font-family="Inter,Helvetica,Arial,sans-serif" font-size="72" font-weight="700" letter-spacing="-2" fill="#0F0F0F">Fexa</text>
       </svg>
+      ${d.clientDomain ? `
+      <div style="border-left:1px solid #D8E4E4;padding-left:14px;display:flex;align-items:center">
+        <img src="https://logo.clearbit.com/\${encodeURIComponent('${d.clientDomain}')}" alt="${d.clientName}" style="height:32px;max-width:140px;object-fit:contain" onerror="this.parentElement.style.display='none'" />
+      </div>
+      ` : ''}
     </div>
     <div class="header-title">
       <h1>${d.clientName} — Platform ROI Analysis</h1>
