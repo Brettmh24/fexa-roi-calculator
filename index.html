@@ -276,6 +276,12 @@
                             <input type="text" id="locationGrowth" placeholder="e.g. 6" />
                         </div>
                     </div>
+                    <div class="input-group">
+                        <label>Client EBITDA Margin (%)</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="ebitdaMargin" placeholder="e.g. 9 (default)" />
+                        </div>
+                    </div>
                 </div>
 
                 <button class="calculate-btn" onclick="calculate()">Calculate My Savings</button>
@@ -466,6 +472,7 @@
             const clientName   = document.getElementById('clientName').value.trim() || 'Client';
             const fmTeamSize   = pv('fmTeamSize') || 0;
             const locationGrowth = parseFloat(document.getElementById('locationGrowth').value) || 0;
+            const ebitdaMargin = parseFloat(document.getElementById('ebitdaMargin').value) || 9;
 
             let avgInvoice = pv('medianInvoice');
             if (avgInvoice === 0 && totalSpend > 0 && totalInv > 0) {
@@ -588,7 +595,7 @@
 
             lastCalcData = {
                 clientName, totalSpend, totalInv, totalWOs, locations, totalAssets, avgInvoice, vendors,
-                proposals, callCenter, fmTeamSize, locationGrowth,
+                proposals, callCenter, fmTeamSize, locationGrowth, ebitdaMargin,
                 costAvoidTotal, costAvoidItems,
                 totalTimeHours, timeBackDollars, timeBackItems,
                 spendOptTotal, budgetSavings,
@@ -717,7 +724,10 @@
                 ? '$' + (d.costAvoidTotal / 1000000).toFixed(2) + 'M'
                 : '$' + Math.round(d.costAvoidTotal).toLocaleString();
 
-            const revenueEquiv = d.costAvoidTotal / 0.09;
+            const margin = (d.ebitdaMargin || 9) / 100;
+            const marginPct = d.ebitdaMargin || 9;
+            const revenueMultiple = Math.round(1 / margin);
+            const revenueEquiv = d.costAvoidTotal / margin;
             const fteEquiv = Math.round(d.aiCallAvoid / 80000);
             const threeYearNet = d.grandTotal * 3;
             const fmCount = d.fmTeamSize || '—';
@@ -896,7 +906,7 @@
     <div class="ebitda-row">
       <div class="ebitda-box">
         <div class="ebitda-num">${rf(revenueEquiv)}</div>
-        <div class="ebitda-body">In new revenue ${d.clientName} would need to win to produce the same ${costAvoidFmt} EBITDA impact organically &mdash; at ~9% margin, every $1 of bottom-line savings equals ~$11 in revenue.</div>
+        <div class="ebitda-body">In new revenue ${d.clientName} would need to win to produce the same ${costAvoidFmt} EBITDA impact organically &mdash; at ~${marginPct}% margin, every $1 of bottom-line savings equals ~$${revenueMultiple} in revenue.</div>
       </div>
       <div class="ebitda-box">
         <div class="ebitda-num">~${fteEquiv} FTEs</div>
