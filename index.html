@@ -1191,14 +1191,30 @@ new Chart(document.getElementById('capacityChart'),{
             };
 
             showToast('Saving to pipeline...');
-            fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            })
-            .then(() => showToast('Saved to pipeline sheet'))
-            .catch(err => showToast('Error saving: ' + err.message, 4000));
+            // Use a form POST via hidden iframe to avoid CORS issues
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            form.target = 'sheetFrame';
+            form.style.display = 'none';
+            // Send as a single JSON field that Apps Script can parse
+            const input = document.createElement('input');
+            input.name = 'payload';
+            input.value = JSON.stringify(payload);
+            form.appendChild(input);
+            // Hidden iframe to receive response
+            let iframe = document.getElementById('sheetFrame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.name = 'sheetFrame';
+                iframe.id = 'sheetFrame';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+            document.body.appendChild(form);
+            form.submit();
+            form.remove();
+            setTimeout(() => showToast('Saved to pipeline sheet'), 1500);
         }
     </script>
     <div class="toast" id="toast"></div>

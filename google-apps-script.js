@@ -60,7 +60,9 @@ function doSetup() {
 
 function doPost(e) {
   try {
-    var data = JSON.parse(e.postData.contents);
+    // Support both form POST (payload field) and raw JSON
+    var raw = (e.parameter && e.parameter.payload) ? e.parameter.payload : e.postData.contents;
+    var data = JSON.parse(raw);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
     var row = [
